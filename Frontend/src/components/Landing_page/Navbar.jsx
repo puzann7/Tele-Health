@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ChevronDown, Stethoscope, Heart, Brain, Users, Phone, Clock } from 'lucide-react';
 
-const Navbar = () => {
+const Navbar = ({ onAuthClick }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -150,14 +150,14 @@ const Navbar = () => {
             ))}
             
             <button 
-              onClick={() => scrollToSection('#contact')}
-              className={`relative px-4 py-3 text-sm font-medium transition-all duration-300 rounded-lg group cursor-pointer ${
-                isScrolled 
-                  ? 'text-gray-700 hover:text-teal-600' 
-                  : 'text-white hover:text-teal-200'
-              }`}
-            >
-              <span className="relative z-10">Sign In</span>
+  onClick={onAuthClick}
+  className={`relative px-4 py-3 text-sm font-medium transition-all duration-300 rounded-lg group cursor-pointer ${
+    isScrolled 
+      ? 'text-gray-700 hover:text-teal-600' 
+      : 'text-white hover:text-teal-200'
+  }`}
+>
+  <span className="relative z-10">Sign In</span>
               <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-500 to-teal-600 group-hover:w-full transition-all duration-300"></div>
             </button>
           </div>
@@ -264,7 +264,10 @@ const Navbar = () => {
                 ? 'translate-x-0 opacity-100' 
                 : 'translate-x-4 opacity-0'
             }`} style={{ transitionDelay: `${navLinks.length * 50}ms` }}>
-              <button className="flex items-center w-full text-left px-4 py-4 text-gray-700 hover:text-teal-600 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 rounded-xl transition-all duration-300 font-medium group relative overflow-hidden">
+              <button 
+  onClick={onAuthClick}
+  className="flex items-center w-full text-left px-4 py-4 text-gray-700 hover:text-teal-600 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 rounded-xl transition-all duration-300 font-medium group relative overflow-hidden"
+>
                 <span className="relative z-10">Sign In</span>
                 <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-teal-500 to-teal-600 transform scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top"></div>
               </button>
