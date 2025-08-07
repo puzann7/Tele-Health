@@ -29,8 +29,8 @@ const Navbar = ({ onAuthClick }) => {
   const navLinks = [
     { name: 'Home', href: '#home' },
     { name: 'How it Works', href: '#how-it-works' },
-    { 
-      name: 'Services', 
+    {
+      name: 'Services',
       href: '#services',
       dropdown: [
         { name: 'General Consultation', href: '#general', icon: Stethoscope, desc: 'Primary care and check-ups' },
@@ -55,13 +55,13 @@ const Navbar = ({ onAuthClick }) => {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-      isScrolled 
-        ? 'bg-white/95 shadow-lg backdrop-blur-md border-b border-gray-100' 
+      isScrolled
+        ? 'bg-white/95 shadow-lg backdrop-blur-md border-b border-gray-100'
         : 'bg-transparent'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 lg:h-20">
-          
+
           {/* Logo */}
           <div className="flex-shrink-0 cursor-pointer group" onClick={() => scrollToSection('#home')}>
             <div className="flex items-center space-x-3">
@@ -100,8 +100,8 @@ const Navbar = ({ onAuthClick }) => {
                     }
                   }}
                   className={`relative flex items-center space-x-1 px-4 py-3 text-sm font-medium transition-all duration-300 rounded-lg group cursor-pointer ${
-                    isScrolled 
-                      ? 'text-gray-700 hover:text-teal-600' 
+                    isScrolled
+                      ? 'text-gray-700 hover:text-teal-600'
                       : 'text-white hover:text-teal-200'
                   }`}
                 >
@@ -111,16 +111,16 @@ const Navbar = ({ onAuthClick }) => {
                       activeDropdown === link.name ? 'rotate-180' : ''
                     }`} />
                   )}
-                  
+
                   {/* Animated underline */}
                   <div className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-teal-500 to-teal-600 transition-all duration-300 ${
                     !link.dropdown ? 'w-0 group-hover:w-full' : ''
                   }`}></div>
                 </button>
-                
+
                 {/* Enhanced Dropdown Menu */}
                 {link.dropdown && activeDropdown === link.name && (
-                  <div 
+                  <div
                     className="dropdown-menu absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 transform opacity-0 translate-y-2 animate-[fadeInUp_0.3s_ease-out_forwards]"
                     onMouseEnter={() => setActiveDropdown(link.name)}
                     onMouseLeave={() => setActiveDropdown(null)}
@@ -148,12 +148,12 @@ const Navbar = ({ onAuthClick }) => {
                 )}
               </div>
             ))}
-            
-            <button 
+
+            <button
   onClick={onAuthClick}
   className={`relative px-4 py-3 text-sm font-medium transition-all duration-300 rounded-lg group cursor-pointer ${
-    isScrolled 
-      ? 'text-gray-700 hover:text-teal-600' 
+    isScrolled
+      ? 'text-gray-700 hover:text-teal-600'
       : 'text-white hover:text-teal-200'
   }`}
 >
@@ -195,18 +195,18 @@ const Navbar = ({ onAuthClick }) => {
 
       {/* Enhanced Mobile Navigation Menu */}
       <div className={`lg:hidden mobile-menu transition-all duration-500 ease-out ${
-        isMobileMenuOpen 
-          ? 'max-h-screen opacity-100 translate-y-0' 
+        isMobileMenuOpen
+          ? 'max-h-screen opacity-100 translate-y-0'
           : 'max-h-0 opacity-0 -translate-y-4 pointer-events-none'
       }`}>
         <div className="absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md shadow-2xl border-t border-gray-100 overflow-hidden">
           <div className="px-4 py-6 space-y-1">
             {navLinks.map((link, index) => (
-              <div 
+              <div
                 key={link.name}
                 className={`transform transition-all duration-500 ${
-                  isMobileMenuOpen 
-                    ? 'translate-x-0 opacity-100' 
+                  isMobileMenuOpen
+                    ? 'translate-x-0 opacity-100'
                     : 'translate-x-4 opacity-0'
                 }`}
                 style={{ transitionDelay: `${index * 50}ms` }}
@@ -223,12 +223,12 @@ const Navbar = ({ onAuthClick }) => {
                   )}
                   <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-teal-500 to-teal-600 transform scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top"></div>
                 </button>
-                
+
                 {/* Enhanced Mobile Dropdown */}
                 {link.dropdown && (
                   <div className={`ml-4 space-y-1 transition-all duration-500 ease-out overflow-hidden ${
-                    activeDropdown === link.name 
-                      ? 'max-h-96 opacity-100 mt-2' 
+                    activeDropdown === link.name
+                      ? 'max-h-96 opacity-100 mt-2'
                       : 'max-h-0 opacity-0 mt-0'
                   }`}>
                     {link.dropdown.map((item, itemIndex) => {
@@ -238,8 +238,8 @@ const Navbar = ({ onAuthClick }) => {
                           key={item.name}
                           onClick={() => scrollToSection(item.href)}
                           className={`flex items-center space-x-3 w-full text-left px-4 py-3 text-gray-600 hover:text-teal-600 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 rounded-lg transition-all duration-300 transform ${
-                            activeDropdown === link.name 
-                              ? 'translate-x-0 opacity-100' 
+                            activeDropdown === link.name
+                              ? 'translate-x-0 opacity-100'
                               : 'translate-x-2 opacity-0'
                           }`}
                           style={{ transitionDelay: `${itemIndex * 100}ms` }}
@@ -258,13 +258,13 @@ const Navbar = ({ onAuthClick }) => {
                 )}
               </div>
             ))}
-            
+
             <div className={`pt-4 border-t border-gray-200 space-y-3 transform transition-all duration-500 ${
-              isMobileMenuOpen 
-                ? 'translate-x-0 opacity-100' 
+              isMobileMenuOpen
+                ? 'translate-x-0 opacity-100'
                 : 'translate-x-4 opacity-0'
             }`} style={{ transitionDelay: `${navLinks.length * 50}ms` }}>
-              <button 
+              <button
   onClick={onAuthClick}
   className="flex items-center w-full text-left px-4 py-4 text-gray-700 hover:text-teal-600 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 rounded-xl transition-all duration-300 font-medium group relative overflow-hidden"
 >

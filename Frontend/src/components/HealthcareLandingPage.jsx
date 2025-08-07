@@ -36,21 +36,22 @@ const TelehealthLandingPage = () => {
     <div className="min-h-screen bg-white">
       {/* Updated Navbar with new auth handler */}
       <Navbar onAuthClick={handleAuthClick} />
-      
+
       <Hero />
       <FeaturesSection />
-      <HowItWorks />    
+      <HowItWorks />
       <Testimonials />
       <Footer />
-      
+
       {/* Updated AuthPage modal with type and proper state management */}
       {authModal.isOpen && (
-        <AuthPage 
+        <AuthPage
           type={authModal.type}
           isOpen={authModal.isOpen}
-          onClose={handleAuthClose} 
+          onClose={handleAuthClose}
         />
       )}
+      <Footer />
     </div>
   );
 };
