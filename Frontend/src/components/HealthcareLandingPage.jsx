@@ -34,9 +34,6 @@ const TelehealthLandingPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Updated Navbar with new auth handler */}
-      <Navbar onAuthClick={handleAuthClick} />
-
       <Hero />
       <FeaturesSection />
       <HowItWorks />

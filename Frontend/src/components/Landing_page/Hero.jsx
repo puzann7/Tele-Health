@@ -182,7 +182,7 @@ const Hero = () => {
         <div className={`absolute top-1/4 left-4 lg:left-8 xl:left-12 z-40 transition-all duration-1000 transform ${
           isVisible ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
         }`} style={{ transitionDelay: '1400ms' }}>
-          <div className="bg-gradient-to-r hidden sm:block from-emerald-500/20 to-teal-500/20 backdrop-blur-lg rounded-2xl p-4 lg:p-6 border border-emerald-300/30 shadow-2xl hover:from-emerald-500/30 hover:to-teal-500/30 transition-all duration-300 animate-float max-w-xs">
+          <div className="bg-gradient-to-r hidden md:block from-emerald-500/20 to-teal-500/20 backdrop-blur-lg rounded-2xl p-4 lg:p-6 border border-emerald-300/30 shadow-2xl hover:from-emerald-500/30 hover:to-teal-500/30 transition-all duration-300 animate-float max-w-xs">
             <div className="flex items-center space-x-3">
               <div className="w-4 h-4 bg-emerald-400 rounded-full animate-pulse flex-shrink-0"></div>
               <div>
@@ -201,7 +201,7 @@ const Hero = () => {
         <div className={`absolute top-1/3 right-4 lg:right-8 xl:right-12 z-40 transition-all duration-1000 transform ${
           isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
         }`} style={{ transitionDelay: '1600ms' }}>
-          <div className="bg-gradient-to-r hidden sm:block from-blue-500/20 to-indigo-500/20 backdrop-blur-lg rounded-2xl p-4 lg:p-6 border border-blue-300/30 shadow-2xl hover:from-blue-500/30 hover:to-indigo-500/30 transition-all duration-300 animate-float-delayed max-w-xs">
+          <div className="bg-gradient-to-r hidden md:block from-blue-500/20 to-indigo-500/20 backdrop-blur-lg rounded-2xl p-4 lg:p-6 border border-blue-300/30 shadow-2xl hover:from-blue-500/30 hover:to-indigo-500/30 transition-all duration-300 animate-float-delayed max-w-xs">
             <div className="flex items-center space-x-3">
               <div className="w-4 h-4 bg-blue-400 rounded-full animate-pulse flex-shrink-0"></div>
               <div >
