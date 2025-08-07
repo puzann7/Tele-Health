@@ -5,7 +5,7 @@ import FeaturesSection from './Landing_page/FeaturesSection';
 import HowItWorks from './Landing_page/HowItWorks';
 import Testimonials from './Landing_page/Testimonials';
 import Footer from './Landing_page/Footer';
-import AuthPage from './Landing_page/Authpage';
+import AuthPage from './Landing_page/AuthPage';
 
 const TelehealthLandingPage = () => {
   // Updated state management for auth modal

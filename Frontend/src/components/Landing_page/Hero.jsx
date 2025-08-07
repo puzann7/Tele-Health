@@ -280,7 +280,7 @@ const Hero = () => {
 
               {/* Primary CTA */}
               <button
-                onClick={() => scrollToSection('#services')}
+                onClick={() => window.location.href = '/auth'}
                 className="group relative bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-500 hover:from-emerald-600 hover:via-teal-600 hover:to-blue-600 text-white px-8 py-4 lg:px-12 lg:py-5 rounded-xl text-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-emerald-500/30 w-full sm:w-auto flex items-center justify-center space-x-3 cursor-pointer"
                 aria-label="Start consultation with Nepal TeleHealth"
               >

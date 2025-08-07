@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, Phone, Clock, MapPin, Star, ArrowRight, Shield, Users, Menu, Stethoscope, Calendar, MessageCircle, Home, User, ChevronDown, X, Search, Filter, Video, FileText, CreditCard } from 'lucide-react';
 import './styles/globals.css';
 import HealthcareLandingPage from './components/HealthcareLandingPage'
+import AuthPage from './pages/auth';
 
 // Mock routing state (we'll implement React Router later)
 function App() {
@@ -491,16 +492,18 @@ function App() {
 
   // Render current page
   const renderPage = () => {
-    switch(currentPage) {
-      case 'doctors': return <DoctorsPage />;
-      case 'appointments': return <AppointmentsPage />;
-      case 'login': return <LoginPage />;
-      case 'chat': return <div className="p-4 pb-20"><h2 className="text-xl font-bold">Chat - Coming Soon</h2></div>;
-      case 'profile': return <div className="p-4 pb-20"><h2 className="text-xl font-bold">Profile - Coming Soon</h2></div>;
-      case 'emergency': return <div className="p-4 pb-20"><h2 className="text-xl font-bold text-red-600">Emergency Consultation</h2></div>;
-      default: return <HomePage />;
-    }
-  };
+  switch(currentPage) {
+    case 'doctors': return <DoctorsPage />;
+    case 'appointments': return <AppointmentsPage />;
+    case 'login': return <LoginPage />;
+    case 'chat': return <div className="p-4 pb-20"><h2 className="text-xl font-bold">Chat - Coming Soon</h2></div>;
+    case 'profile': return <div className="p-4 pb-20"><h2 className="text-xl font-bold">Profile - Coming Soon</h2></div>;
+    case 'emergency': return <div className="p-4 pb-20"><h2 className="text-xl font-bold text-red-600">Emergency Consultation</h2></div>;
+    case 'auth': return <AuthPage />;
+    default: return <HomePage />;
+  }
+};
+
   if (showLandingPage) {
     return <HealthcareLandingPage />;
   }
