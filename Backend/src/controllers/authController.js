@@ -1,10 +1,13 @@
 // controllers/authController.js
-import crypto from 'crypto';
-import { promisify } from 'util';
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
-import { createSendToken } from '../middlewares/auth.js';
-import { sendWelcomeEmail, sendPasswordResetEmail } from '../utils/emailService.js';
+import crypto from "crypto";
+import { promisify } from "util";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+import { createSendToken } from "../middlewares/auth.js";
+import {
+  sendWelcomeEmail,
+  sendPasswordResetEmail,
+} from "../utils/emailService.js";
 
 // Error handling wrapper
 const catchAsync = (fn) => {
@@ -24,42 +27,24 @@ const signup = catchAsync(async (req, res, next) => {
     email,
     phoneNumber,
     password,
-    role: role || 'patient'
+    role: role || "patient",
   });
 
-  // Generate email verification token
-  const verifyToken = newUser.createEmailVerificationToken();
-  await newUser.save({ validateBeforeSave: false });
-
-  try {
-    // Send welcome email with verification link
-    await sendWelcomeEmail(newUser, verifyToken);
-
-    res.status(201).json({
-      status: 'success',
-      message: 'User registered successfully! Please check your email to verify your account.',
-      data: {
-        user: {
-          id: newUser._id,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          email: newUser.email,
-          role: newUser.role,
-          isVerified: newUser.isVerified
-        }
-      }
-    });
-  } catch (err) {
-    // If email fails, delete the user and reset tokens
-    newUser.emailVerificationToken = undefined;
-    newUser.emailVerificationExpires = undefined;
-    await newUser.save({ validateBeforeSave: false });
-
-    return res.status(500).json({
-      status: 'error',
-      message: 'There was an error sending the verification email. Please try again.'
-    });
-  }
+  res.status(201).json({
+    status: "success",
+    message:
+      "User registered successfully! Please check your email to verify your account.",
+    data: {
+      user: {
+        id: newUser._id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        role: newUser.role,
+        isVerified: newUser.isVerified,
+      },
+    },
+  });
 });
 
 // Login user
@@ -67,20 +52,20 @@ const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   // Check if user exists and password is correct
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email }).select("+password");
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return res.status(401).json({
-      status: 'fail',
-      message: 'Incorrect email or password'
+      status: "fail",
+      message: "Incorrect email or password",
     });
   }
 
   // Check if user is active
   if (!user.isActive) {
     return res.status(401).json({
-      status: 'fail',
-      message: 'Your account has been deactivated. Please contact support.'
+      status: "fail",
+      message: "Your account has been deactivated. Please contact support.",
     });
   }
 
@@ -94,14 +79,14 @@ const login = catchAsync(async (req, res, next) => {
 
 // Logout user
 const logout = (req, res) => {
-  res.cookie('jwt', 'loggedout', {
+  res.cookie("jwt", "loggedout", {
     expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true
+    httpOnly: true,
   });
 
   res.status(200).json({
-    status: 'success',
-    message: 'Logged out successfully'
+    status: "success",
+    message: "Logged out successfully",
   });
 };
 
@@ -109,20 +94,20 @@ const logout = (req, res) => {
 const verifyEmail = catchAsync(async (req, res, next) => {
   // Get user based on the token
   const hashedToken = crypto
-    .createHash('sha256')
+    .createHash("sha256")
     .update(req.params.token)
-    .digest('hex');
+    .digest("hex");
 
   const user = await User.findOne({
     emailVerificationToken: hashedToken,
-    emailVerificationExpires: { $gt: Date.now() }
+    emailVerificationExpires: { $gt: Date.now() },
   });
 
   // If token has not expired, and there is a user, verify the email
   if (!user) {
     return res.status(400).json({
-      status: 'fail',
-      message: 'Token is invalid or has expired'
+      status: "fail",
+      message: "Token is invalid or has expired",
     });
   }
 
@@ -132,8 +117,8 @@ const verifyEmail = catchAsync(async (req, res, next) => {
   await user.save();
 
   res.status(200).json({
-    status: 'success',
-    message: 'Email verified successfully! You can now access all features.'
+    status: "success",
+    message: "Email verified successfully! You can now access all features.",
   });
 });
 
@@ -143,8 +128,8 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
     return res.status(404).json({
-      status: 'fail',
-      message: 'There is no user with that email address.'
+      status: "fail",
+      message: "There is no user with that email address.",
     });
   }
 
@@ -156,8 +141,8 @@ const forgotPassword = catchAsync(async (req, res, next) => {
     await sendPasswordResetEmail(user, resetToken);
 
     res.status(200).json({
-      status: 'success',
-      message: 'Password reset link sent to your email!'
+      status: "success",
+      message: "Password reset link sent to your email!",
     });
   } catch (err) {
     user.passwordResetToken = undefined;
@@ -165,8 +150,8 @@ const forgotPassword = catchAsync(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     return res.status(500).json({
-      status: 'error',
-      message: 'There was an error sending the email. Try again later.'
+      status: "error",
+      message: "There was an error sending the email. Try again later.",
     });
   }
 });
@@ -175,20 +160,20 @@ const forgotPassword = catchAsync(async (req, res, next) => {
 const resetPassword = catchAsync(async (req, res, next) => {
   // Get user based on the token
   const hashedToken = crypto
-    .createHash('sha256')
+    .createHash("sha256")
     .update(req.params.token)
-    .digest('hex');
+    .digest("hex");
 
   const user = await User.findOne({
     passwordResetToken: hashedToken,
-    passwordResetExpires: { $gt: Date.now() }
+    passwordResetExpires: { $gt: Date.now() },
   });
 
   // If token has not expired, and there is a user, set the new password
   if (!user) {
     return res.status(400).json({
-      status: 'fail',
-      message: 'Token is invalid or has expired'
+      status: "fail",
+      message: "Token is invalid or has expired",
     });
   }
 
@@ -204,13 +189,13 @@ const resetPassword = catchAsync(async (req, res, next) => {
 // Update password (for logged in users)
 const updatePassword = catchAsync(async (req, res, next) => {
   // Get user from collection
-  const user = await User.findById(req.user.id).select('+password');
+  const user = await User.findById(req.user.id).select("+password");
 
   // Check if POSTed current password is correct
   if (!(await user.correctPassword(req.body.currentPassword, user.password))) {
     return res.status(401).json({
-      status: 'fail',
-      message: 'Your current password is incorrect.'
+      status: "fail",
+      message: "Your current password is incorrect.",
     });
   }
 
@@ -225,10 +210,10 @@ const updatePassword = catchAsync(async (req, res, next) => {
 // Get current user
 const getMe = catchAsync(async (req, res, next) => {
   res.status(200).json({
-    status: 'success',
+    status: "success",
     data: {
-      user: req.user
-    }
+      user: req.user,
+    },
   });
 });
 
@@ -238,15 +223,15 @@ const resendVerificationEmail = catchAsync(async (req, res, next) => {
 
   if (!user) {
     return res.status(404).json({
-      status: 'fail',
-      message: 'No user found with that email address.'
+      status: "fail",
+      message: "No user found with that email address.",
     });
   }
 
   if (user.isVerified) {
     return res.status(400).json({
-      status: 'fail',
-      message: 'This account is already verified.'
+      status: "fail",
+      message: "This account is already verified.",
     });
   }
 
@@ -258,8 +243,8 @@ const resendVerificationEmail = catchAsync(async (req, res, next) => {
     await sendWelcomeEmail(user, verifyToken);
 
     res.status(200).json({
-      status: 'success',
-      message: 'Verification email sent successfully!'
+      status: "success",
+      message: "Verification email sent successfully!",
     });
   } catch (err) {
     user.emailVerificationToken = undefined;
@@ -267,8 +252,8 @@ const resendVerificationEmail = catchAsync(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     return res.status(500).json({
-      status: 'error',
-      message: 'There was an error sending the email. Try again later.'
+      status: "error",
+      message: "There was an error sending the email. Try again later.",
     });
   }
 });
@@ -276,7 +261,8 @@ const resendVerificationEmail = catchAsync(async (req, res, next) => {
 // Google OAuth success callback
 const googleSuccess = catchAsync(async (req, res) => {
   // Check if user needs to complete their profile
-  const needsProfileCompletion = !req.user.phoneNumber || req.user.phoneNumber === '0000000000';
+  const needsProfileCompletion =
+    !req.user.phoneNumber || req.user.phoneNumber === "0000000000";
 
   // Generate JWT token
   createSendToken(req.user, 200, res);
@@ -285,8 +271,8 @@ const googleSuccess = catchAsync(async (req, res) => {
 // Google OAuth failure callback
 const googleFailure = (req, res) => {
   res.status(401).json({
-    status: 'fail',
-    message: 'Google authentication failed'
+    status: "fail",
+    message: "Google authentication failed",
   });
 };
 
@@ -301,5 +287,5 @@ export default {
   getMe,
   resendVerificationEmail,
   googleSuccess,
-  googleFailure
+  googleFailure,
 };
