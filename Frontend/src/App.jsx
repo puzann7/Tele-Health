@@ -6,6 +6,8 @@ import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import DoctorsList from './pages/Doctor/DoctorsList';
 import Footer from './components/Landing_page/Footer';
+import HealthcareLandingPage from './components/HealthcareLandingPage'
+import AuthPage from './pages/auth';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -46,18 +48,19 @@ function App() {
       case 'doctors': 
         return <DoctorsList onNavigate={navigateTo} />;
       case 'appointments': 
-        return <AppointmentsList onNavigate={navigateTo} />;
+        return <div className="p-4 pb-20"><h2 className="text-xl font-bold">Appointments - Coming Soon</h2></div>;
       case 'chat': 
-        return <ChatRoom onNavigate={navigateTo} />;
+        return <div className="p-4 pb-20"><h2 className="text-xl font-bold">Chat - Coming Soon</h2></div>;
       case 'profile': 
-        return <PatientProfile onNavigate={navigateTo} onLogout={handleLogout} />;
+        return <div className="p-4 pb-20"><h2 className="text-xl font-bold">Profile - Coming Soon</h2></div>;
       case 'emergency': 
-        return <EmergencyConsultation onNavigate={navigateTo} />;
+        return <div className="p-4 pb-20"><h2 className="text-xl font-bold text-red-600">Emergency Consultation</h2></div>;
+      case 'auth': 
+        return <AuthPage />;
       default: 
         return <Home onNavigate={navigateTo} isAuthenticated={isAuthenticated} />;
     }
   };
-
   return (
     <AuthProvider value={{ isAuthenticated, userType, handleLogin, handleLogout }}>
       <div className="min-h-screen bg-gray-50">

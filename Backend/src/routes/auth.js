@@ -1,19 +1,5 @@
-// routes/auth.js
-import express from 'express';
-import passport from 'passport';
-import rateLimit from 'express-rate-limit';
-
-// Import controllers and middleware
-import authController from '../controllers/authController.js';
-import { protect } from '../middlewares/auth.js';
-import {
-  validateSignup,
-  validateLogin,
-  validateForgotPassword,
-  validateResetPassword,
-  validateUpdatePassword
-} from '../middlewares/validation.js';
-
+const express = require('express');
+const passport = require('passport');
 const router = express.Router();
 
 // Rate limiting for authentication routes
@@ -106,37 +92,27 @@ router.patch('/update-password', protect, validateUpdatePassword, authController
 // @desc    Start Google OAuth flow
 // @access  Public
 router.get('/google',
-  passport.authenticate('google', {
-    scope: ['profile', 'email']
-  })
+  passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
-// @route   GET /api/auth/google/callback
-// @desc    Google OAuth callback
-// @access  Public
 router.get('/google/callback',
-  passport.authenticate('google', { session: false }),
-  authController.googleSuccess
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    // Successful authentication, redirect to frontend
+    res.redirect('http://localhost:3000/dashboard');
+  }
 );
 
-// @route   GET /api/auth/google/failure
-// @desc    Google OAuth failure
-// @access  Public
-router.get('/google/failure', authController.googleFailure);
+// Get current user
+router.get('/current_user', (req, res) => {
+  res.json(req.user);
+});
 
-// ============================================
-// HEALTH CHECK ROUTE
-// ============================================
-
-// @route   GET /api/auth/health
-// @desc    Health check for auth service
-// @access  Public
-router.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'Auth service is running',
-    timestamp: new Date().toISOString()
+// Logout
+router.get('/logout', (req, res) => {
+  req.logout(() => {
+    res.redirect('http://localhost:3000');
   });
 });
 
-export default router
+module.exports = router;
