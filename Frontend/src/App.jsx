@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Heart, Phone, Clock, MapPin, Star, ArrowRight, Shield, Users, Menu, Stethoscope, Calendar, MessageCircle, Home, User, ChevronDown, X, Search, Filter, Video, FileText, CreditCard } from 'lucide-react';
+import { Link } from 'react-router';
 
 // Mock routing state
 function App() {
@@ -49,8 +50,10 @@ function App() {
             <button onClick={() => navigateTo('doctors')} className="font-medium text-gray-700 hover:text-blue-600 transition-colors">Find Doctors</button>
             <button onClick={() => navigateTo('about')} className="font-medium text-gray-700 hover:text-blue-600 transition-colors">About Us</button>
             <div className="flex items-center space-x-4 ml-8">
+                <Link to="/register">
               <button onClick={() => navigateTo('login')} className="text-blue-600 hover:text-blue-700 font-medium">Sign In</button>
-              <button onClick={() => navigateTo('register')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">Sign Up</button>
+              </Link>
+              <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">Sign Up</button>
             </div>
           </nav>
 
@@ -537,4 +540,3 @@ function App() {
 }
 
 export default App;
-            

@@ -38,7 +38,6 @@ const TelehealthLandingPage = () => {
       <FeaturesSection />
       <HowItWorks />
       <Testimonials />
-      <Footer />
 
       {/* Updated AuthPage modal with type and proper state management */}
       {authModal.isOpen && (
