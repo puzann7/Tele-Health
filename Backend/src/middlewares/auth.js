@@ -71,8 +71,16 @@ const protect = async (req, res, next) => {
       });
     }
 
-    // 4) Check if user changed password after the token was issued
-    if (currentUser.changedPasswordAfter(decoded.iat)) {
+    // 4) Check if user is active
+    if (!currentUser.isActive) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'Your account has been deactivated. Please contact support.'
+      });
+    }
+
+    // 5) Check if user changed password after the token was issued (optional)
+    if (currentUser.changedPasswordAfter && currentUser.changedPasswordAfter(decoded.iat)) {
       return res.status(401).json({
         status: 'fail',
         message: 'User recently changed password! Please log in again.'
@@ -83,9 +91,17 @@ const protect = async (req, res, next) => {
     req.user = currentUser;
     next();
   } catch (error) {
+    let message = 'Invalid token. Please log in again!';
+
+    if (error.name === 'TokenExpiredError') {
+      message = 'Your token has expired! Please log in again.';
+    } else if (error.name === 'JsonWebTokenError') {
+      message = 'Invalid token. Please log in again!';
+    }
+
     return res.status(401).json({
       status: 'fail',
-      message: 'Invalid token. Please log in again!'
+      message
     });
   }
 };
@@ -116,8 +132,8 @@ const isLoggedIn = async (req, res, next) => {
         return next();
       }
 
-      // 3) Check if user changed password after the token was issued
-      if (currentUser.changedPasswordAfter(decoded.iat)) {
+      // 3) Check if user changed password after the token was issued (optional)
+      if (currentUser.changedPasswordAfter && currentUser.changedPasswordAfter(decoded.iat)) {
         return next();
       }
 
@@ -131,10 +147,22 @@ const isLoggedIn = async (req, res, next) => {
   next();
 };
 
+// Require verified email middleware
+const requireVerifiedEmail = (req, res, next) => {
+  if (!req.user.isVerified) {
+    return res.status(403).json({
+      status: 'fail',
+      message: 'Please verify your email address to access this feature.'
+    });
+  }
+  next();
+};
+
 export {
   signToken,
   createSendToken,
   protect,
   restrictTo,
-  isLoggedIn
+  isLoggedIn,
+  requireVerifiedEmail
 };
