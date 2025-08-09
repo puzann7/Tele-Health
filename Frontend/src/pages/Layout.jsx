@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, Phone, Clock, MapPin, Star, ArrowRight, Shield, Users, Menu, Stethoscope, Calendar, MessageCircle, Home, User, ChevronDown, X, Search, Filter, Video, FileText, CreditCard, Bell, Settings, LogOut, CheckCircle, Activity, Zap, Award, Globe, Sparkles } from 'lucide-react';
 import { Link } from 'react-router';
-
-
+import FloatingChatbaseChatbot from '../components/FloatingAIChatbot'; // Add this import
 
 const Layout = ({ children, currentPage, isAuthenticated, userType, onNavigate, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -266,6 +265,9 @@ const Layout = ({ children, currentPage, isAuthenticated, userType, onNavigate, 
     <Header />
     {children}
     {isAuthenticated && <BottomNav />}
+    
+    {/* Floating AI Chatbot - Available on all pages */}
+    <FloatingChatbaseChatbot />
   </>
 );
 };

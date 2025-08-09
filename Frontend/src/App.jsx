@@ -6,7 +6,7 @@ import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import DoctorsList from './pages/Doctor/DoctorsList';
 import Footer from './components/Landing_page/Footer';
-
+import FloatingAIChatbot from './components/FloatingAIChatbot.jsx';
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -73,6 +73,7 @@ function App() {
           </main>
         </Layout>
         <Footer />
+        <FloatingAIChatbot />  {/* ADD THIS LINE */}
       </div>
     </AuthProvider>
   );

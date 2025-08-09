@@ -277,6 +277,7 @@ const SignIn = ({ onLogin, onNavigate }) => {
             </div>
 
             {/* Submit Button */}
+            <Link to="/home/PatientDashboard">
             <button
               type="submit"
               disabled={isLoading}
@@ -287,6 +288,7 @@ const SignIn = ({ onLogin, onNavigate }) => {
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               )}
             </button>
+            </Link>
 
             {/* Switch to Sign Up */}
             <div className="text-center pt-6">

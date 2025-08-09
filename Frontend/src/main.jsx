@@ -10,7 +10,8 @@ import Login from './pages/Auth/Login.jsx'
 import Register from './pages/Auth/Register.jsx'
 import PatientRegister from './pages/Auth/PatientRegister.jsx'
 import DoctorRegister from './pages/Auth/DoctorRegister.jsx'
-
+import PatientDashboard from './pages/Patient/PatientDashboard.jsx'
+import DoctorDashboard from './pages/Doctor/DoctorDashboard.jsx'
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route path='/' element={<Layout />}>
@@ -21,6 +22,8 @@ const router = createBrowserRouter(
             <Route path='home/Register' element={<Register />} />
             <Route path='home/PatientRegister' element={<PatientRegister />} />
             <Route path='home/DoctorRegister' element={<DoctorRegister />} />
+            <Route path='home/PatientDashboard' element={<PatientDashboard />} />
+            <Route path='home/DoctorDashboard' element={<DoctorDashboard />} />
         </Route>
     )
 )
