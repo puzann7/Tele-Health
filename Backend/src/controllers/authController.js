@@ -115,9 +115,19 @@ const signup = catchAsync(async (req, res, next) => {
   }
 });
 
-// Sign up patient (specific signup for patients)
+/// Sign up patient (specific signup for patients)
 const signupPatient = catchAsync(async (req, res, next) => {
-  const { firstName, lastName, email, phoneNumber, password, dateOfBirth, gender } = req.body;
+  const {
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    password,
+    dateOfBirth,
+    gender,
+    address,
+    emergencyContact
+  } = req.body;
 
   // Log the incoming request data (remove in production)
   console.log('Signup Patient Request:', { firstName, lastName, email, phoneNumber: phoneNumber ? 'provided' : 'not provided' });
@@ -139,6 +149,10 @@ const signupPatient = catchAsync(async (req, res, next) => {
     });
   }
 
+  // Declare variables outside try block for proper scoping
+  let newUser = null;
+  let newPatient = null;
+
   try {
     // Create new patient user with only the fields that are provided
     const userData = {
@@ -153,10 +167,36 @@ const signupPatient = catchAsync(async (req, res, next) => {
     if (phoneNumber) userData.phoneNumber = phoneNumber;
     if (dateOfBirth) userData.dateOfBirth = dateOfBirth;
     if (gender) userData.gender = gender;
+    if (address) userData.address = address;
 
     console.log('Creating user with data:', { ...userData, password: '[HIDDEN]' });
 
-    const newUser = await User.create(userData);
+    newUser = await User.create(userData);
+
+    // Create corresponding Patient profile with minimal required fields
+    newPatient = await Patient.create({
+      userId: newUser._id,
+      dateOfBirth: dateOfBirth || null,
+      gender: gender || 'not-specified',
+      emergencyContact: emergencyContact || {
+        name: '',
+        relationship: '',
+        phoneNumber: '',
+        email: ''
+      },
+      medicalHistory: {
+        allergies: [],
+        chronicConditions: [],
+        currentMedications: [],
+        pastSurgeries: [],
+        familyHistory: []
+      },
+      insurance: {
+        provider: '',
+        policyNumber: '',
+        groupNumber: ''
+      }
+    });
 
     // Check if the user model has the createEmailVerificationToken method
     if (typeof newUser.createEmailVerificationToken === 'function') {
@@ -184,17 +224,33 @@ const signupPatient = catchAsync(async (req, res, next) => {
           lastName: newUser.lastName,
           email: newUser.email,
           phoneNumber: newUser.phoneNumber,
-          role: newUser.role,
+          userType: newUser.userType,
           dateOfBirth: newUser.dateOfBirth,
           gender: newUser.gender,
           isVerified: newUser.isVerified,
           isActive: newUser.isActive
+        },
+        patient: {
+          id: newPatient._id,
+          dateOfBirth: newPatient.dateOfBirth,
+          gender: newPatient.gender,
+          emergencyContact: newPatient.emergencyContact
         }
       }
     });
   } catch (err) {
     // Log the detailed error for debugging
     console.error('Error creating patient account:', err);
+
+    // If patient creation fails but user was created, clean up the user
+    if (newUser && newUser._id) {
+      try {
+        await User.findByIdAndDelete(newUser._id);
+        console.log('Cleaned up user after patient creation failure');
+      } catch (cleanupError) {
+        console.log('Failed to cleanup user:', cleanupError.message);
+      }
+    }
 
     // Check for specific MongoDB validation errors
     if (err.name === 'ValidationError') {
@@ -222,11 +278,21 @@ const signupPatient = catchAsync(async (req, res, next) => {
     });
   }
 });
-
 // Sign up doctor (specific signup for doctors)
 const signupDoctor = catchAsync(async (req, res, next) => {
-  const { firstName, lastName, email, phoneNumber, password, primarySpecialization, licenseNumber, experience} = req.body;
-
+  const {
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    password,
+    primarySpecialization,
+    licenseNumber,
+    experience,
+    address,
+    languagesSpoken = ['English', 'Nepali'], // Default languages
+    bio
+  } = req.body;
 
   // Validate required fields
   console.log(primarySpecialization);
@@ -246,8 +312,8 @@ const signupDoctor = catchAsync(async (req, res, next) => {
     });
   }
 
-  // Check if license number is already taken
-  const existingLicense = await User.findOne({ licenseNumber });
+  // Check if license number is already taken (check in Doctor collection)
+  const existingLicense = await Doctor.findOne({ licenseNumber });
   if (existingLicense) {
     return res.status(409).json({
       status: 'fail',
@@ -255,18 +321,34 @@ const signupDoctor = catchAsync(async (req, res, next) => {
     });
   }
 
+  // Declare variables outside try block for proper scoping
+  let newUser = null;
+  let newDoctor = null;
+
   try {
-    // Create new doctor user
-    const newUser = await User.create({
+    // Create new doctor user (WITHOUT doctor-specific fields)
+    newUser = await User.create({
       firstName,
       lastName,
       email,
       phoneNumber,
       password,
       userType: 'doctor',
+      address: address || {
+        province: 'Bagmati',
+        district: 'Kathmandu',
+        municipality: 'Kathmandu Metropolitan City'
+      }
+    });
+
+    // Create corresponding Doctor profile with minimal required fields
+    newDoctor = await Doctor.create({
+      userId: newUser._id,
       primarySpecialization,
       licenseNumber,
-      experience
+      nmc_registration: licenseNumber, // Required field
+      totalExperience: experience || 0,
+      verificationStatus: 'pending'
     });
 
     // Generate email verification token
@@ -290,20 +372,37 @@ const signupDoctor = catchAsync(async (req, res, next) => {
           lastName: newUser.lastName,
           email: newUser.email,
           phoneNumber: newUser.phoneNumber,
-          role: newUser.role,
-          primarySpecialization: newUser.primarySpecialization,
-          licenseNumber: newUser.licenseNumber,
-          experience: newUser.experience,
+          userType: newUser.userType,
           isVerified: newUser.isVerified,
           isActive: newUser.isActive
+        },
+        doctor: {
+          id: newDoctor._id,
+          primarySpecialization: newDoctor.primarySpecialization,
+          licenseNumber: newDoctor.licenseNumber,
+          totalExperience: newDoctor.totalExperience,
+          verificationStatus: newDoctor.verificationStatus,
+          consultationFee: newDoctor.consultationFee
         }
       }
     });
   } catch (err) {
-    console.log(err);
+    console.log('Error creating doctor account:', err);
+
+    // If doctor creation fails but user was created, clean up the user
+    if (newUser && newUser._id) {
+      try {
+        await User.findByIdAndDelete(newUser._id);
+        console.log('Cleaned up user after doctor creation failure');
+      } catch (cleanupError) {
+        console.log('Failed to cleanup user:', cleanupError.message);
+      }
+    }
+
     return res.status(500).json({
       status: 'error',
-      message: 'There was an error creating the doctor account. Please try again.'
+      message: 'There was an error creating the doctor account. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   }
 });

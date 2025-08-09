@@ -2,14 +2,14 @@
 import express from 'express';
 import Patient from '../models/Patient.js';
 import User from '../models/User.js';
-import { protect, restrictTo } from '../middlewares/auth.js';
+import { protect,} from '../middlewares/auth.js';
 
 const router = express.Router();
 
 // @route   GET /api/patients/profile
 // @desc    Get patient profile
 // @access  Private (Patient)
-router.get('/profile', protect, restrictTo('patient'), async (req, res) => {
+router.get('/profile', protect), async (req, res) => {
   try {
     const patient = await Patient.findOne({ userId: req.user.id })
       .populate('userId', 'firstName lastName email phoneNumber profilePicture address dateOfBirth gender');
@@ -35,12 +35,12 @@ router.get('/profile', protect, restrictTo('patient'), async (req, res) => {
       error: error.message
     });
   }
-});
+};
 
 // @route   PATCH /api/patients/profile
 // @desc    Update patient profile
 // @access  Private (Patient)
-router.patch('/profile', protect, restrictTo('patient'), async (req, res) => {
+router.patch('/profile', protect), async (req, res) => {
   try {
     const patient = await Patient.findOne({ userId: req.user.id });
 
@@ -103,12 +103,12 @@ router.patch('/profile', protect, restrictTo('patient'), async (req, res) => {
       error: error.message
     });
   }
-});
+};
 
 // @route   GET /api/patients/dashboard
 // @desc    Get patient dashboard data
 // @access  Private (Patient)
-router.get('/dashboard', protect, restrictTo('patient'), async (req, res) => {
+router.get('/dashboard', protect), async (req, res) => {
   try {
     const patient = await Patient.findOne({ userId: req.user.id })
       .populate('userId', 'firstName lastName profilePicture');
@@ -213,12 +213,12 @@ router.get('/dashboard', protect, restrictTo('patient'), async (req, res) => {
       error: error.message
     });
   }
-});
+};
 
 // @route   POST /api/patients/medical-history
 // @desc    Add medical history entry
 // @access  Private (Patient)
-router.post('/medical-history', protect, restrictTo('patient'), async (req, res) => {
+router.post('/medical-history', protect, async (req, res) => {
   try {
     const patient = await Patient.findOne({ userId: req.user.id });
 

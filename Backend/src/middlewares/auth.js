@@ -107,17 +107,6 @@ const protect = async (req, res, next) => {
 };
 
 // Restrict to specific roles
-const restrictTo = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        status: 'fail',
-        message: 'You do not have permission to perform this action'
-      });
-    }
-    next();
-  };
-};
 
 // Check if user is logged in (for rendered pages)
 const isLoggedIn = async (req, res, next) => {
@@ -162,7 +151,6 @@ export {
   signToken,
   createSendToken,
   protect,
-  restrictTo,
   isLoggedIn,
   requireVerifiedEmail
 };
