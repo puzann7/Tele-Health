@@ -292,6 +292,7 @@ const SignUpPage = () => {
           </div>
 
           {/* Premium Google Sign Up */}
+          {userType === 'patient' && (
           <button
             onClick={handleGoogleAuth}
             disabled={isLoading}
@@ -307,13 +308,16 @@ const SignUpPage = () => {
             <span className="font-semibold">Sign up with Google</span>
             {isLoading && <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>}
           </button>
+          )}
 
           {/* Enhanced Divider */}
-          <div className="flex items-center mb-6">
-            <div className="flex-1 border-t-2 border-gray-200"></div>
-            <div className="px-6 text-sm text-gray-500 font-bold uppercase tracking-wider">or continue with email</div>
-            <div className="flex-1 border-t-2 border-gray-200"></div>
-          </div>
+         {userType === 'patient' && (
+  <div className="flex items-center mb-6">
+    <div className="flex-1 border-t-2 border-gray-200"></div>
+    <div className="px-6 text-sm text-gray-500 font-bold uppercase tracking-wider">or continue with email</div>
+    <div className="flex-1 border-t-2 border-gray-200"></div>
+  </div>
+)}
 
           {/* Enhanced Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -497,7 +501,7 @@ const SignUpPage = () => {
               disabled={isLoading}
               className={`w-full py-5 px-6 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-3 cursor-pointer ${
                 userType === 'doctor'
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white'
                   : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white'
               }`}
             >

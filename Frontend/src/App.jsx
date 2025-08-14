@@ -6,9 +6,7 @@ import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import DoctorsList from './pages/Doctor/DoctorsList';
 import Footer from './components/Landing_page/Footer';
-import HealthcareLandingPage from './components/HealthcareLandingPage'
-import AuthPage from './pages/auth';
-
+import FloatingAIChatbot from './components/FloatingAIChatbot.jsx';
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -48,19 +46,18 @@ function App() {
       case 'doctors': 
         return <DoctorsList onNavigate={navigateTo} />;
       case 'appointments': 
-        return <div className="p-4 pb-20"><h2 className="text-xl font-bold">Appointments - Coming Soon</h2></div>;
+        return <AppointmentsList onNavigate={navigateTo} />;
       case 'chat': 
-        return <div className="p-4 pb-20"><h2 className="text-xl font-bold">Chat - Coming Soon</h2></div>;
+        return <ChatRoom onNavigate={navigateTo} />;
       case 'profile': 
-        return <div className="p-4 pb-20"><h2 className="text-xl font-bold">Profile - Coming Soon</h2></div>;
+        return <PatientProfile onNavigate={navigateTo} onLogout={handleLogout} />;
       case 'emergency': 
-        return <div className="p-4 pb-20"><h2 className="text-xl font-bold text-red-600">Emergency Consultation</h2></div>;
-      case 'auth': 
-        return <AuthPage />;
+        return <EmergencyConsultation onNavigate={navigateTo} />;
       default: 
         return <Home onNavigate={navigateTo} isAuthenticated={isAuthenticated} />;
     }
   };
+
   return (
     <AuthProvider value={{ isAuthenticated, userType, handleLogin, handleLogout }}>
       <div className="min-h-screen bg-gray-50">
@@ -76,6 +73,7 @@ function App() {
           </main>
         </Layout>
         <Footer />
+        <FloatingAIChatbot />  {/* ADD THIS LINE */}
       </div>
     </AuthProvider>
   );

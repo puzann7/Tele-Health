@@ -5,11 +5,8 @@ import FeaturesSection from './Landing_page/FeaturesSection';
 import HowItWorks from './Landing_page/HowItWorks';
 import Testimonials from './Landing_page/Testimonials';
 import Footer from './Landing_page/Footer';
-<<<<<<< HEAD
 import AuthPage from './Landing_page/Authpage';
-=======
-import AuthPage from './Landing_page/AuthPage';
->>>>>>> c97e4dc184b16474f4a05110501fb3682387e950
+import FloatingChatbaseChatbot from './FloatingAIChatbot'; // Add this import
 
 const TelehealthLandingPage = () => {
   // Updated state management for auth modal
@@ -38,7 +35,6 @@ const TelehealthLandingPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-<<<<<<< HEAD
       <Hero />
       <FeaturesSection />
       <HowItWorks />
@@ -53,26 +49,9 @@ const TelehealthLandingPage = () => {
           onClose={handleAuthClose}
         />
       )}
-      <Footer />
-=======
-      {/* Updated Navbar with new auth handler */}
-      <Navbar onAuthClick={handleAuthClick} />
       
-      <Hero />
-      <FeaturesSection />
-      <HowItWorks />    
-      <Testimonials />
-      <Footer />
-      
-      {/* Updated AuthPage modal with type and proper state management */}
-      {authModal.isOpen && (
-        <AuthPage 
-          type={authModal.type}
-          isOpen={authModal.isOpen}
-          onClose={handleAuthClose} 
-        />
-      )}
->>>>>>> c97e4dc184b16474f4a05110501fb3682387e950
+      {/* Floating AI Chatbot - Available on landing page */}
+      <FloatingChatbaseChatbot />
     </div>
   );
 };

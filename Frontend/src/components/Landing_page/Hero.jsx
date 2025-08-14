@@ -1,9 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { ArrowRight, Play, Shield, Award, Users, CheckCircle, Star, Activity, Heart, Clock, MapPin, Zap } from 'lucide-react';
-<<<<<<< HEAD
 import { Link } from 'react-router';
-=======
->>>>>>> c97e4dc184b16474f4a05110501fb3682387e950
 
 const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -185,11 +182,7 @@ const Hero = () => {
         <div className={`absolute top-1/4 left-4 lg:left-8 xl:left-12 z-40 transition-all duration-1000 transform ${
           isVisible ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
         }`} style={{ transitionDelay: '1400ms' }}>
-<<<<<<< HEAD
           <div className="bg-gradient-to-r hidden md:block from-emerald-500/20 to-teal-500/20 backdrop-blur-lg rounded-2xl p-4 lg:p-6 border border-emerald-300/30 shadow-2xl hover:from-emerald-500/30 hover:to-teal-500/30 transition-all duration-300 animate-float max-w-xs">
-=======
-          <div className="bg-gradient-to-r hidden sm:block from-emerald-500/20 to-teal-500/20 backdrop-blur-lg rounded-2xl p-4 lg:p-6 border border-emerald-300/30 shadow-2xl hover:from-emerald-500/30 hover:to-teal-500/30 transition-all duration-300 animate-float max-w-xs">
->>>>>>> c97e4dc184b16474f4a05110501fb3682387e950
             <div className="flex items-center space-x-3">
               <div className="w-4 h-4 bg-emerald-400 rounded-full animate-pulse flex-shrink-0"></div>
               <div>
@@ -208,11 +201,7 @@ const Hero = () => {
         <div className={`absolute top-1/3 right-4 lg:right-8 xl:right-12 z-40 transition-all duration-1000 transform ${
           isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
         }`} style={{ transitionDelay: '1600ms' }}>
-<<<<<<< HEAD
           <div className="bg-gradient-to-r hidden md:block from-blue-500/20 to-indigo-500/20 backdrop-blur-lg rounded-2xl p-4 lg:p-6 border border-blue-300/30 shadow-2xl hover:from-blue-500/30 hover:to-indigo-500/30 transition-all duration-300 animate-float-delayed max-w-xs">
-=======
-          <div className="bg-gradient-to-r hidden sm:block from-blue-500/20 to-indigo-500/20 backdrop-blur-lg rounded-2xl p-4 lg:p-6 border border-blue-300/30 shadow-2xl hover:from-blue-500/30 hover:to-indigo-500/30 transition-all duration-300 animate-float-delayed max-w-xs">
->>>>>>> c97e4dc184b16474f4a05110501fb3682387e950
             <div className="flex items-center space-x-3">
               <div className="w-4 h-4 bg-blue-400 rounded-full animate-pulse flex-shrink-0"></div>
               <div >
@@ -291,22 +280,14 @@ const Hero = () => {
             }`} style={{ transitionDelay: '800ms' }}>
 
               {/* Primary CTA */}
-<<<<<<< HEAD
                <Link to="/home">
               <button
-=======
-              <button
-                onClick={() => window.location.href = '/auth'}
->>>>>>> c97e4dc184b16474f4a05110501fb3682387e950
                 className="group relative bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-500 hover:from-emerald-600 hover:via-teal-600 hover:to-blue-600 text-white px-8 py-4 lg:px-12 lg:py-5 rounded-xl text-lg font-bold transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-emerald-500/30 w-full sm:w-auto flex items-center justify-center space-x-3 cursor-pointer"
                 aria-label="Start consultation with Nepal TeleHealth"
               >
                 <Heart className="w-5 h-5" />
                 <span className="block text-lg font-semibold">Get Started Now</span>
-<<<<<<< HEAD
 
-=======
->>>>>>> c97e4dc184b16474f4a05110501fb3682387e950
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
 
                 {/* Floating notification */}
@@ -314,10 +295,7 @@ const Hero = () => {
                   Live
                 </div>
               </button>
-<<<<<<< HEAD
                    </Link>
-=======
->>>>>>> c97e4dc184b16474f4a05110501fb3682387e950
 
               {/* Secondary CTA */}
               <button
