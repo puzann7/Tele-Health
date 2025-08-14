@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   Settings as SettingsIcon, 
   User, 
@@ -25,19 +25,29 @@ import {
   Menu,
   Calendar,
   Home,
-  Stethoscope
+  Stethoscope,
+  AlertCircle
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 // Sidebar Component
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();
+  const { logout, user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const links = [
     { label: "Home", to: "/home/PatientDashboard", icon: Home },
     { label: "Appointments", to: "/home/PatientDashboard/Appointment", icon: Calendar },
     { label: "Find Doctors", to: "/home/PatientDashboard/FindDoctors", icon: Stethoscope },
     { label: "Settings", to: "/home/PatientDashboard/Settings", icon: SettingsIcon },
-    { label: "Logout", to: "/logout", icon: LogOut },
   ];
 
   return (
@@ -73,6 +83,15 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               </Link>
             </li>
           ))}
+          {/* Logout button */}
+          <li>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+            >
+              <LogOut className="w-5 h-5 mr-3" /> Logout
+            </button>
+          </li>
         </ul>
       </nav>
     </aside>
@@ -81,6 +100,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
 // Header Component
 const Header = ({ toggleSidebar }) => {
+  const { user } = useAuth();
+  
   return (
     <header className="flex items-center justify-between bg-white shadow-sm px-6 py-4 sticky top-0 z-40">
       <button
@@ -94,12 +115,12 @@ const Header = ({ toggleSidebar }) => {
       <div className="flex items-center space-x-4">
         <Bell className="w-6 h-6 text-gray-600 cursor-pointer hover:text-blue-600" />
         <div className="flex items-center space-x-2 cursor-pointer">
-          <img
-            src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=32&h=32&fit=crop&crop=face"
-            alt="User Avatar"
-            className="w-8 h-8 rounded-full object-cover shadow-sm"
-          />
-          <span className="font-medium text-gray-700">Ramesh</span>
+          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
+            {user?.firstName?.charAt(0) || user?.email?.charAt(0) || 'U'}
+          </div>
+          <span className="font-medium text-gray-700">
+            {user?.firstName || user?.email?.split('@')[0] || 'User'}
+          </span>
         </div>
       </div>
     </header>
@@ -172,19 +193,26 @@ const ToggleSwitch = ({ enabled, onChange, label, description }) => (
 );
 
 const Settings = () => {
+  const navigate = useNavigate();
+  const { user, logout, updateUser } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+  
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   const [activeTab, setActiveTab] = useState('profile');
   const [showPassword, setShowPassword] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  
   const [notifications, setNotifications] = useState({
     appointments: true,
     medications: true,
     promotions: false,
     security: true
   });
+  
   const [privacy, setPrivacy] = useState({
     dataSharing: false,
     analytics: true,
@@ -192,15 +220,44 @@ const Settings = () => {
   });
 
   const [profile, setProfile] = useState({
-    firstName: 'Ramesh',
-    lastName: 'Thapa',
-    email: 'rohitpoudel020@gmail.com',
-    phone: '+977 98xxxxxxxx',
-    dateOfBirth: '1990-01-15',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    dateOfBirth: '',
     gender: 'male',
+    address: '',
     bloodGroup: 'O+',
-    emergencyContact: '+977 98xxxxxxxx'
+    emergencyContact: ''
   });
+
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  // Initialize profile data from user context
+  useEffect(() => {
+    if (user) {
+      setProfile({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phoneNumber: user.phoneNumber || '',
+        dateOfBirth: user.dateOfBirth ? user.dateOfBirth.split('T')[0] : '',
+        gender: user.gender || 'male',
+        address: user.address || '',
+        bloodGroup: user.bloodGroup || 'O+',
+        emergencyContact: user.emergencyContact || ''
+      });
+    }
+  }, [user]);
+
+  const showMessage = (type, text) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+  };
 
   const tabs = [
     { key: 'profile', label: 'Profile', icon: User, desc: 'Personal information' },
@@ -211,13 +268,57 @@ const Settings = () => {
     { key: 'support', label: 'Help & Support', icon: HelpCircle, desc: 'Get assistance' }
   ];
 
-  const handleProfileSave = () => {
-    setEditingProfile(false);
-    console.log('Profile saved:', profile);
+  const handleProfileSave = async () => {
+    setLoading(true);
+    try {
+      // Here you would typically call an API to update the profile
+      // For now, we'll just update the local context
+      await updateUser(profile);
+      setEditingProfile(false);
+      showMessage('success', 'Profile updated successfully!');
+    } catch (error) {
+      console.error('Profile update error:', error);
+      showMessage('error', 'Failed to update profile. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleLogout = () => {
-    console.log('Logging out...');
+  const handlePasswordUpdate = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      showMessage('error', 'New passwords do not match');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      showMessage('error', 'Password must be at least 6 characters long');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Here you would call your password update API
+      console.log('Updating password...');
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      showMessage('success', 'Password updated successfully!');
+    } catch (error) {
+      console.error('Password update error:', error);
+      showMessage('error', 'Failed to update password. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      setLoading(true);
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+      showMessage('error', 'Logout failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderDesktopNavigation = () => (
@@ -251,7 +352,8 @@ const Settings = () => {
         <div className="pt-4 mt-6 border-t border-gray-200">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 text-left"
+            disabled={loading}
+            className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 text-left disabled:opacity-50"
           >
             <LogOut className="w-5 h-5" />
             <span className="font-medium">Log Out</span>
@@ -266,23 +368,38 @@ const Settings = () => {
       case 'profile':
         return (
           <div className="space-y-4 md:space-y-6">
+            {/* Success/Error Messages */}
+            {message.text && (
+              <div className={`p-4 rounded-xl flex items-center space-x-3 ${
+                message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' :
+                'bg-red-50 text-red-700 border border-red-200'
+              }`}>
+                {message.type === 'success' ? 
+                  <Check className="w-5 h-5" /> : 
+                  <AlertCircle className="w-5 h-5" />
+                }
+                <span>{message.text}</span>
+              </div>
+            )}
+
             <SettingCard title="Profile Information" description="Manage your personal information">
               <div className="space-y-4 md:space-y-6">
                 {/* Profile Picture */}
                 <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
                   <div className="relative">
-                    <img 
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" 
-                      alt="Profile" 
-                      className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover shadow-lg border-4 border-white"
-                    />
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-blue-600 flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-lg border-4 border-white">
+                      {profile.firstName.charAt(0) || 'U'}
+                    </div>
                     <button className="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 md:p-2 rounded-full hover:bg-blue-700 transition-colors shadow-lg">
                       <Camera className="w-3 h-3 md:w-4 md:h-4" />
                     </button>
                   </div>
                   <div className="text-center md:text-left">
-                    <h4 className="text-lg font-semibold text-gray-900">{profile.firstName} {profile.lastName}</h4>
-                    <p className="text-gray-600 text-sm">Patient ID: #PAT-2024-001</p>
+                    <h4 className="text-lg font-semibold text-gray-900">
+                      {profile.firstName} {profile.lastName}
+                    </h4>
+                    <p className="text-gray-600 text-sm">Patient ID: #{user?.id || 'N/A'}</p>
+                    <p className="text-gray-600 text-sm">User Type: {user?.userType || 'Patient'}</p>
                     <button className="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium">
                       Change Photo
                     </button>
@@ -291,111 +408,103 @@ const Settings = () => {
 
                 {/* Profile Form */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  <div className="space-y-4 md:space-y-0 md:contents">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                      <input
-                        type="text"
-                        value={profile.firstName}
-                        onChange={(e) => setProfile({...profile, firstName: e.target.value})}
-                        disabled={!editingProfile}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                      <input
-                        type="text"
-                        value={profile.lastName}
-                        onChange={(e) => setProfile({...profile, lastName: e.target.value})}
-                        disabled={!editingProfile}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                    <input
+                      type="text"
+                      value={profile.firstName}
+                      onChange={(e) => setProfile({...profile, firstName: e.target.value})}
+                      disabled={!editingProfile}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
+                    />
                   </div>
                   
-                  <div className="space-y-4 md:space-y-0 md:contents">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                      <input
-                        type="email"
-                        value={profile.email}
-                        onChange={(e) => setProfile({...profile, email: e.target.value})}
-                        disabled={!editingProfile}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                      <input
-                        type="tel"
-                        value={profile.phone}
-                        onChange={(e) => setProfile({...profile, phone: e.target.value})}
-                        disabled={!editingProfile}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                    <input
+                      type="text"
+                      value={profile.lastName}
+                      onChange={(e) => setProfile({...profile, lastName: e.target.value})}
+                      disabled={!editingProfile}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
+                    />
                   </div>
                   
-                  <div className="space-y-4 md:space-y-0 md:contents">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
-                      <input
-                        type="date"
-                        value={profile.dateOfBirth}
-                        onChange={(e) => setProfile({...profile, dateOfBirth: e.target.value})}
-                        disabled={!editingProfile}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
-                      <select
-                        value={profile.gender}
-                        onChange={(e) => setProfile({...profile, gender: e.target.value})}
-                        disabled={!editingProfile}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
-                      >
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input
+                      type="email"
+                      value={profile.email}
+                      onChange={(e) => setProfile({...profile, email: e.target.value})}
+                      disabled={!editingProfile}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
+                    />
                   </div>
                   
-                  <div className="space-y-4 md:space-y-0 md:contents">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Blood Group</label>
-                      <select
-                        value={profile.bloodGroup}
-                        onChange={(e) => setProfile({...profile, bloodGroup: e.target.value})}
-                        disabled={!editingProfile}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
-                      >
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Emergency Contact</label>
-                      <input
-                        type="tel"
-                        value={profile.emergencyContact}
-                        onChange={(e) => setProfile({...profile, emergencyContact: e.target.value})}
-                        disabled={!editingProfile}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <input
+                      type="tel"
+                      value={profile.phoneNumber}
+                      onChange={(e) => setProfile({...profile, phoneNumber: e.target.value})}
+                      disabled={!editingProfile}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                    <input
+                      type="date"
+                      value={profile.dateOfBirth}
+                      onChange={(e) => setProfile({...profile, dateOfBirth: e.target.value})}
+                      disabled={!editingProfile}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                    <select
+                      value={profile.gender}
+                      onChange={(e) => setProfile({...profile, gender: e.target.value})}
+                      disabled={!editingProfile}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
+                    >
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Blood Group</label>
+                    <select
+                      value={profile.bloodGroup}
+                      onChange={(e) => setProfile({...profile, bloodGroup: e.target.value})}
+                      disabled={!editingProfile}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
+                    >
+                      <option value="A+">A+</option>
+                      <option value="A-">A-</option>
+                      <option value="B+">B+</option>
+                      <option value="B-">B-</option>
+                      <option value="AB+">AB+</option>
+                      <option value="AB-">AB-</option>
+                      <option value="O+">O+</option>
+                      <option value="O-">O-</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Emergency Contact</label>
+                    <input
+                      type="tel"
+                      value={profile.emergencyContact}
+                      onChange={(e) => setProfile({...profile, emergencyContact: e.target.value})}
+                      disabled={!editingProfile}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 text-sm md:text-base"
+                    />
                   </div>
                 </div>
 
@@ -404,14 +513,16 @@ const Settings = () => {
                     <>
                       <button
                         onClick={handleProfileSave}
-                        className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200"
+                        disabled={loading}
+                        className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 disabled:opacity-50"
                       >
                         <Save className="w-4 h-4" />
-                        <span>Save Changes</span>
+                        <span>{loading ? 'Saving...' : 'Save Changes'}</span>
                       </button>
                       <button
                         onClick={() => setEditingProfile(false)}
-                        className="flex items-center justify-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                        disabled={loading}
+                        className="flex items-center justify-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
                       >
                         <X className="w-4 h-4" />
                         <span>Cancel</span>
@@ -437,10 +548,13 @@ const Settings = () => {
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 text-sm md:text-base"
                       placeholder="Enter current password"
                     />
                     <button
+                      type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                     >
@@ -453,6 +567,8 @@ const Settings = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
                   <input
                     type="password"
+                    value={passwordData.newPassword}
+                    onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm md:text-base"
                     placeholder="Enter new password"
                   />
@@ -462,13 +578,19 @@ const Settings = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
                   <input
                     type="password"
+                    value={passwordData.confirmPassword}
+                    onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm md:text-base"
                     placeholder="Confirm new password"
                   />
                 </div>
                 
-                <button className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200">
-                  Update Password
+                <button 
+                  onClick={handlePasswordUpdate}
+                  disabled={loading || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
+                  className="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 disabled:opacity-50"
+                >
+                  {loading ? 'Updating...' : 'Update Password'}
                 </button>
               </div>
             </SettingCard>
@@ -541,6 +663,79 @@ const Settings = () => {
             <SettingCard title="Security Settings" description="Manage your account security">
               <div className="space-y-4">
                 <div className="flex flex-col md:flex-row md:items-center justify-between py-3 space-y-3 md:space-y-0">
+                  <div>
+                    <p className="font-medium text-gray-900">Two-Factor Authentication</p>
+                    <p className="text-sm text-gray-600">Add an extra layer of security</p>
+                  </div>
+                  <button className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors text-sm">
+                    Enable 2FA
+                  </button>
+                </div>
+                
+                <div className="flex flex-col md:flex-row md:items-center justify-between py-3 space-y-3 md:space-y-0">
+                  <div>
+                    <p className="font-medium text-gray-900">Login History</p>
+                    <p className="text-sm text-gray-600">View recent login activity</p>
+                  </div>
+                  <button className="w-full md:w-auto px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-sm">
+                    View History
+                  </button>
+                </div>
+                
+                <div className="flex flex-col md:flex-row md:items-center justify-between py-3 space-y-3 md:space-y-0">
+                  <div>
+                    <p className="font-medium text-gray-900">Active Sessions</p>
+                    <p className="text-sm text-gray-600">Manage logged in devices</p>
+                  </div>
+                  <button className="w-full md:w-auto px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-sm">
+                    Manage Sessions
+                  </button>
+                </div>
+              </div>
+            </SettingCard>
+          </div>
+        );
+
+      case 'preferences':
+        return (  
+          <SettingCard title="App Preferences" description="Customize your app experience">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-3">
+                <div className="flex-1 pr-4">
+                  <p className="font-medium text-gray-900">Dark Mode</p>
+                  <p className="text-sm text-gray-600">Switch to dark theme</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Sun className="w-4 h-4 text-gray-500" />
+                  <button
+                    onClick={() => setIsDarkMode(!isDarkMode)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                      isDarkMode ? 'bg-blue-600' : 'bg-gray-200'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-lg ${
+                        isDarkMode ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                  <Moon className="w-4 h-4 text-gray-500" />
+                </div>
+              </div>
+              
+              <div className="flex flex-col md:flex-row md:items-center justify-between py-3 space-y-3 md:space-y-0">
+                <div>
+                  <p className="font-medium text-gray-900">Language</p>
+                  <p className="text-sm text-gray-600">Choose your preferred language</p>
+                </div>
+                <select className="w-full md:w-auto px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
+                  <option value="en">English</option>
+                  <option value="ne">नेपाली</option>
+                  <option value="hi">हिंदी</option>
+                </select>
+              </div>
+              
+              <div className="flex flex-col md:flex-row md:items-center justify-between py-3 space-y-3 md:space-y-0">
                 <div>
                   <p className="font-medium text-gray-900">Time Zone</p>
                   <p className="text-sm text-gray-600">Set your local time zone</p>
@@ -553,49 +748,7 @@ const Settings = () => {
               </div>
             </div>
           </SettingCard>
-          </div>
         );
-        case 'preferences':
-  return (  
-    <SettingCard title="App Preferences" description="Customize your app experience">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between py-3">
-          <div className="flex-1 pr-4">
-            <p className="font-medium text-gray-900">Dark Mode</p>
-            <p className="text-sm text-gray-600">Switch to dark theme</p>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Sun className="w-4 h-4 text-gray-500" />
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                isDarkMode ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-lg ${
-                  isDarkMode ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-            <Moon className="w-4 h-4 text-gray-500" />
-          </div>
-        </div>
-        
-        <div className="flex flex-col md:flex-row md:items-center justify-between py-3 space-y-3 md:space-y-0">
-          <div>
-            <p className="font-medium text-gray-900">Language</p>
-            <p className="text-sm text-gray-600">Choose your preferred language</p>
-          </div>
-          <select className="w-full md:w-auto px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
-            <option value="en">English</option>
-            <option value="ne">नेपाली</option>
-            <option value="hi">हिंदी</option>
-          </select>
-        </div>
-      </div>
-    </SettingCard>
-  );
 
       case 'billing':
         return (
@@ -714,13 +867,10 @@ const Settings = () => {
       <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
       
       {/* Main content area */}
-      <div className="flex flex-col flex-1 overflow-auto pb-16"> {/* padding bottom for mobile nav */}
+      <div className="flex flex-col flex-1 overflow-auto pb-16">
         <Header toggleSidebar={toggleSidebar} />
 
         <main className="p-6 space-y-8 overflow-auto">
-          {/* Enhanced Header */}
-          
-
           {/* Desktop Layout */}
           <div className="hidden lg:flex gap-6">
             {renderDesktopNavigation()}
@@ -783,4 +933,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default Settings;  

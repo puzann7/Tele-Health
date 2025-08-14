@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { 
   Search, 
   Filter, 
@@ -14,7 +15,8 @@ import {
   ChevronRight,
   Heart,
   Brain,
-  Eye,
+  SettingsIcon,
+  Eye,  
   Stethoscope,
   Menu,
   Bell,
@@ -28,13 +30,21 @@ import {
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();
+  const { logout, user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const links = [
     { label: "Home", to: "/home/PatientDashboard", icon: Home },
     { label: "Appointments", to: "/home/PatientDashboard/Appointment", icon: Calendar },
     { label: "Find Doctors", to: "/home/PatientDashboard/FindDoctors", icon: Stethoscope },
-    { label: "Settings", to: "/home/PatientDashboard/Settings", icon: Settings },
-    { label: "Logout", to: "/logout", icon: LogOut },
+    { label: "Settings", to: "/home/PatientDashboard/Settings", icon: SettingsIcon },
   ];
 
   return (
@@ -70,6 +80,15 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               </Link>
             </li>
           ))}
+          {/* Logout button */}
+          <li>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+            >
+              <LogOut className="w-5 h-5 mr-3" /> Logout
+            </button>
+          </li>
         </ul>
       </nav>
     </aside>

@@ -17,7 +17,7 @@ function App() {
     const protectedPages = ['doctors', 'appointments', 'chat', 'profile', 'emergency'];
     
     if (protectedPages.includes(page) && !isAuthenticated) {
-      setCurrentPage('login');
+      setCurrentPage('home/login');
     } else {
       setCurrentPage(page);
     }

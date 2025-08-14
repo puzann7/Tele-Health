@@ -24,7 +24,7 @@ const FloatingChatbaseChatbot = () => {
         <div className="absolute bottom-20 right-0 mb-2 bg-gray-900 text-white px-4 py-3 rounded-xl text-sm opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap shadow-lg transform translate-y-2 group-hover:translate-y-0">
           <div className="flex items-center space-x-2">
             <Stethoscope className="w-4 h-4" />
-            <span>Ask Dr. HealthCareNepal</span>
+            <span>Ask Dr. SajhaDoctor</span>
           </div>
           <div className="absolute top-full right-6 border-4 border-transparent border-t-gray-900"></div>
         </div>
@@ -45,7 +45,7 @@ const FloatingChatbaseChatbot = () => {
               <Stethoscope className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm">Dr. HealthCareNepal</h3>
+              <h3 className="font-bold text-sm">Dr. SajhaDoctor</h3>
               <div className="flex items-center space-x-1">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <p className="text-xs text-blue-100">Online • Ready to help</p>
@@ -79,7 +79,7 @@ const FloatingChatbaseChatbot = () => {
               height="100%"
               frameBorder="0"
               className="w-full h-full"
-              title="Dr. HealthCareNepal"
+              title="Dr. SajhaDoctor"
             />
           </div>
         )}
